@@ -5,17 +5,23 @@ const CryptoStats = () => {
   const [coin, setCoin] = useState('');
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const apiUrl = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/stats';
 
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent the form from refreshing the page
     setError(null); // Reset error state
     setData(null);  // Reset data state
+    setLoading(true); // Set loading state
 
     try {
-      const response = await axios.get(`http://localhost:8000/api/stats?coin=${coin}`);
+      const response = await axios.get(`${apiUrl}?coin=${coin}`);
       setData(response.data); // Set the fetched data
     } catch (err) {
       setError('Error fetching data. Please try again.');
+    } finally {
+      setLoading(false); // Reset loading state
     }
   };
 
@@ -40,7 +46,7 @@ const CryptoStats = () => {
               type="submit"
               className="w-full px-4 py-2 text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-              Submit
+              {loading ? 'Loading...' : 'Submit'}
             </button>
           </form>
         ) : (
@@ -53,6 +59,12 @@ const CryptoStats = () => {
               <p className="text-lg text-gray-700">Market Cap: ${data.marketCap}</p>
               <p className="text-lg text-gray-700">24h Change: {data['24hChange']}%</p>
             </div>
+            <button
+              onClick={() => setData(null)}
+              className="mt-4 w-full px-4 py-2 text-white bg-gray-600 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
+            >
+              Search Again
+            </button>
           </div>
         )}
         {error && <p className="mt-4 text-red-500">{error}</p>}
